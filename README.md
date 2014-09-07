@@ -1,11 +1,11 @@
-# Buildroot and fwup Example
+# Buildroot and fwup examples
 
-This project creates a simple image for the BeagleBone Black using Buildroot and
-`fwup`.  Buildroot is used to build the Linux kernel and all programs. The
-`fwup` utility is used to combine everything into a firmware file (a zip file
-with metadata) that can be easily distributed and installed to an SDCard or
-eMMC. A raw image is also built so that `dd(1)` or a similar tool can be used as
-well.
+This project contains two examples of using [Buildroot](http://buildroot.net/)
+and [fwup](http://github.com/fhunleth/fwup) to create firmware images for the
+BeagleBone Black. The first one simply creates a raw image that you can copy
+directly to an SDCard using `dd(1)`. The second one demonstrates how `fwup` can
+be used to create firmware update files (zip files with metadata) that can be
+run directly on a BBB to upgrade the firmware running on it.
 
 # Just building a raw firmware image
 
@@ -91,6 +91,9 @@ demonstrated here.
 
 For the demo, we need an old and new firmware. We'll install the old firmware
 and then upgrade to the new firmware.
+
+NOTE: Building takes a while. If you want to cheat, just copy the firmware files
+that I made from the `prebuilt` directory.
 
     # Build the "v1" firmware
     $ make realclean
