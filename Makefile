@@ -1,8 +1,6 @@
 TOPDIR := $(shell pwd)
 
-# Replace Buildroot hash tag with 2014.08 when it's available
-# PROJECT_BR_VERSION = 2014.08
-PROJECT_BR_VERSION = 58d3978e4e80f1f2320fbbc54679a513f91f3758
+PROJECT_BR_VERSION = 2014.08
 PROJECT_BR_URL = git://git.buildroot.net/buildroot
 
 # Optional place to download files to so that they don't need

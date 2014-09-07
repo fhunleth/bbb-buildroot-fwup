@@ -3,9 +3,10 @@
 set -e
 
 TARGETDIR=$1
+FWUPCONF_NAME=$2
 
 PROJECT_ROOT=$TARGETDIR/../../..
-FWUP_CONFIG=$PROJECT_ROOT/board/bbb/fwup.conf
+FWUP_CONFIG=$PROJECT_ROOT/board/bbb/$FWUPCONF_NAME
 FWUP=$PROJECT_ROOT/buildroot/output/host/usr/bin/fwup
 
 FW_PATH=$PROJECT_ROOT/buildroot/output/images/bbb.fw

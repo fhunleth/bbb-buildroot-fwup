@@ -8,7 +8,7 @@ that `dd` or a similar tool can be used as well.
 
 ## Building
 
-    make bbb_defconfig
+    make bbb_simple_defconfig
     make
 
 The build products can be found in `buildroot/output/images`
