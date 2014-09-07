@@ -26,6 +26,8 @@ intermediate file.
 The SDCard image that is created is defined in the file
 `board/bbb/fwup-simple.conf`. It looks like the following:
 
+| Section        | Description |
+| -------------- | ----------- |
 | MBR            | Standard 512 byte master boot record |
 | Boot partition | About 1 MiB; contains u-boot.img, uEnv.txt, etc. |
 | Rootfs partition | Configured to be 128 MiB; contains rootfs as built by Buildroot |
@@ -65,6 +67,8 @@ section describes the latter setup. The `fwup` configuration can be found in
 `board/bbb/fwup-pingpong.conf` and it creates a SDCard/eMMC layout like the
 following:
 
+| Section        | Description |
+| -------------- | ----------- |
 | MBR            | Standard 512 byte master boot record |
 | Boot partition | About 1 MiB; contains u-boot.img, uEnv.txt, etc. |
 | Rootfs A partition | Configured to be 128 MiB; contains rootfs as built by Buildroot |
