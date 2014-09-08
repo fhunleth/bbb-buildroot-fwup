@@ -24,7 +24,8 @@ uboot, and writes the rootfs to the right place. You can then use `bbb.img` with
 intermediate file.
 
 The SDCard image that is created is defined in the file
-`board/bbb/fwup-simple.conf`. It looks like the following:
+`board/bbb/fwup-simple.conf`. Here's a more visual image of the layout of the
+SDCard:
 
 | Section        | Description |
 | -------------- | ----------- |
@@ -34,11 +35,19 @@ The SDCard image that is created is defined in the file
 | Partition 3    | Undefined |
 | Partition 4    | Undefined |
 
-As you can tell, there's a lot of unallocated space on the SDCard. By modifying
-`fwup-simple.conf` you can make the boot or rootfs partitions bigger or create
-partitions 3 and 4.
+As you can tell, there's a lot of unallocated space on the SDCard (we only use
+the first 129 MB or so of space). By modifying `fwup-simple.conf` you can make
+the boot or rootfs partitions bigger or create partitions 3 and 4.
 
 ## Building
+
+If you're using Ubuntu, you may need to install some packages to make Buildroot
+work. This should be sufficient:
+
+    $ sudo apt-get install git g++ libncurses5-dev bc
+    $ sudo apt-get install libc6:i386 libstdc++6:i386 zlib1g:i386 gcc-multilib # 64-bit Linux
+
+After that, clone this project and run `make`:
 
     $ make bbb_simple_defconfig
     $ make
@@ -75,22 +84,22 @@ following:
 | Rootfs B partition | Configured to be 128 MiB; unused until the firmware update |
 | Application data partition | FAT32 partition used for demonstration. Application data that should survive firmware updates would be put here. |
 
-The way it works it that uboot boots Linux from Rootfs A. At a later point in
+The way it works is that uboot boots Linux from Rootfs A. At a later point in
 time, the user applies an update. This gets written to the Rootfs B partition.
 After all of the data gets written, the MBR will be updated to make uboot boot
 Linux from the Rootfs B partition. This has a nice property in that if the user
 pulls the power or hits cancel midway during the update, the system will boot
 from Rootfs A like the firmware update never happened. Likewise, if an error is
-detected midway into the firmware update process, no damage is done. You can
+detected midway into the firmware update process, no damage is done. Obviously, you can
 still brick the system if the firmware update is valid, but the software in it
-is buggy. To recover from that, you could create a uboot script that boots from the
-opposite rootfs partition if you hold down a button or something. That is not
-demonstrated here.
+is buggy. To recover from that, you could create a uboot script that boots from
+the opposite rootfs partition if you hold down a button or something. That is
+not demonstrated here.
 
 ## Building the demo
 
-For the demo, we need an old and new firmware. We'll install the old firmware
-and then upgrade to the new firmware.
+For the demo, we need an two firmware files, "v1" and "v2". We'll install the
+"v1" firmware and then upgrade to the "v2" firmware.
 
 NOTE: Building takes a while. If you want to cheat, just copy the firmware files
 that I made from the `prebuilt` directory.
@@ -111,8 +120,8 @@ that I made from the `prebuilt` directory.
     # save the "v2" firmware
     $ cp buildroot/output/images/bbb.fw bbb-v2.fw
 
-Insert a SDCard to your PC so that it can be programmed with the v1 firmware. On
-my PC, it shows up as `/dev/sdc`:
+Insert an SDCard into your PC (via a USB multireader or other device) so that it
+can be programmed with the "v1" firmware. On my PC, it shows up as `/dev/sdc`:
 
     # unmount any file systems that were automounted
     $ umount /media/fhunleth/*
@@ -122,7 +131,7 @@ my PC, it shows up as `/dev/sdc`:
     Use 3.64 GiB memory card found at /dev/sdc? [y/N] y
 
 `fwup` will try to detect the SDCard and will ask for confirmation before
-writing to it. If you have multiple devices that look like SDCards or it doesn't
+writing to it. If you have multiple devices that look like SDCards or `fwup` doesn't
 detected it, you may need to add `-d /dev/sdc` or similar to the command line.
 The `complete` parameter specifies which task from the `fwup-pingpong.conf` file
 to run. In this case, we want a complete image that writes the MBR, bootloader
@@ -133,10 +142,11 @@ you want. Also note that we could have programmed the `bbb.img` file here like
 we did in the simple example at the top. Using `fwup` can be faster since it
 doesn't have to write zeros to fill in the gaps between partitions.
 
-Mount the new filesystems on the SDCard. I find it easiest to unplug and plug
-the SDCard back into the PC so that it automounts. Three filesystems should
-mount, the boot partition, the rootfs, and a big empty partition for application
-data. Copy both firmware update files to the application data partition.
+Next, mount the new filesystems on the SDCard on your PC. I find it easiest to
+unplug and plug the SDCard back into the PC so that it automounts. Three
+filesystems should mount, the boot partition, the rootfs, and a big empty
+partition for application data. Copy both firmware update files to the
+application data partition.
 
     # My SDCard's 4th partition got automounted as 4507-9E5C1, but
     # this changes. Check that you're not copying to the boot or rootfs
@@ -202,7 +212,7 @@ random changes to system utilities and libraries, upgrading the whole rootfs is
 not unreasonable.
 
 If you want to verify what happened, place the SDCard into your PC. You should
-see two rootfs file systems and you can verify that one of them as a
+see two rootfs file systems and you can verify that one of them has a
 `/etc/issue` file with the "v1" contents and the other rootfs has a `/etc/issue`
 with the "v2" contents.
 
@@ -231,9 +241,3 @@ like:
 
 Now remove the SDCard, press reset and verify that the "v1" firmware is
 running. Do it again with "v2" if you'd like.
-
-
-
-
-
-
