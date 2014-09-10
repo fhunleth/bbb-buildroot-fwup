@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BREAKPAD_TEST
+	bool "breakpad-test"
+	help
+	  This is a simple test of google breakpad.

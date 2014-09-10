@@ -1,2 +1,3 @@
+source "$BR2_EXTERNAL/package/breakpad-test/Config.in"
 source "$BR2_EXTERNAL/package/fwup/Config.in"
 source "$BR2_EXTERNAL/package/fwup/Config.in.host"
