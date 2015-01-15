@@ -1,6 +1,6 @@
 TOPDIR := $(shell pwd)
 
-PROJECT_BR_VERSION = 2014.08
+PROJECT_BR_VERSION = 2014.11
 PROJECT_BR_URL = git://git.buildroot.net/buildroot
 
 # Optional place to download files to so that they don't need
