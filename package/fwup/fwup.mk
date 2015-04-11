@@ -4,12 +4,12 @@
 #
 #############################################################
 
-FWUP_VERSION = v0.0.6
+FWUP_VERSION = v0.3.0
 FWUP_SITE = $(call github,fhunleth,fwup,$(FWUP_VERSION))
 FWUP_LICENSE = Apache-2.0
 FWUP_LICENSE_FILES = COPYING
 FWUP_AUTORECONF = YES
-FWUP_DEPENDENCIES = libconfuse libarchive
+FWUP_DEPENDENCIES = libconfuse libarchive libsodium
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

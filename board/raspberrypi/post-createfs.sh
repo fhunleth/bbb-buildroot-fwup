@@ -6,11 +6,18 @@ TARGETDIR=$1
 FWUPCONF_NAME=$2
 
 PROJECT_ROOT=$TARGETDIR/../../..
+IMAGESDIR=$TARGETDIR/../images
 FWUP_CONFIG=$PROJECT_ROOT/board/raspberrypi/$FWUPCONF_NAME
 FWUP=$PROJECT_ROOT/buildroot/output/host/usr/bin/fwup
 
 FW_PATH=$PROJECT_ROOT/buildroot/output/images/raspberrypi.fw
 IMG_PATH=$PROJECT_ROOT/buildroot/output/images/raspberrypi.img
+
+# Process the kernel if using device tree
+if [ -e $PROJECT_ROOT/buildroot/output/host/usr/bin/mkknlimg ]; then
+    $PROJECT_ROOT/buildroot/output/host/usr/bin/mkknlimg \
+        $IMAGESDIR/zImage $IMAGESDIR/zImage.mkknlimg
+fi
 
 # Build the firmware image (.fw file)
 echo "Creating firmware file..."
