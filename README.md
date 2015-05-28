@@ -1,11 +1,11 @@
 # Buildroot and fwup examples
 
-This project contains two examples of using [Buildroot](http://buildroot.net/)
+This project contains examples of using [Buildroot](http://buildroot.net/)
 and [fwup](http://github.com/fhunleth/fwup) to create firmware images for the
-BeagleBone Black. The first one simply creates a raw image that you can copy
-directly to an SDCard using `dd(1)`. The second one demonstrates how `fwup` can
+Raspberry Pi and BeagleBone Black. The first example simply creates a raw image that you can copy
+directly to an SDCard using `dd(1)` or `fwup`. The second one demonstrates how `fwup` can
 be used to create firmware update files (zip files with metadata) that can be
-run directly on a BBB to upgrade the firmware running on it.
+run directly on an RPi or BBB to upgrade the firmware running on it.
 
 # Just building a raw firmware image
 
@@ -49,7 +49,7 @@ work. This should be sufficient:
 
 After that, clone this project and run `make`:
 
-    $ make bbb_simple_defconfig
+    $ make rpi_simple_defconfig
     $ make
 
 It can take some time to download and build everything so you may need to be
@@ -57,13 +57,19 @@ patient. The build products can be found in `buildroot/output/images`.
 
 ## Installing
 
-Insert an SDCard on your PC and note where it appears under Linux. If the SDCard
-is automounted, make sure to `umount` everything that was mounted. Then run the
-following, but replace `/dev/sdc` with the path to the SDCard.
+Insert an SDCard on your PC and then run the following:
 
-    $ sudo dd if=buildroot/output/images/bbb.img of=/dev/sdc bs=1M
+    $ make burn-complete
 
-Insert the SDCard into a BeagleBone Black, and watch it boot over the serial
+This uses `fwup` to write the image to the SDCard. If you're accustomed to using
+`dd(1)` to write images to an SDCard, it's almost the same thing except that it
+automatically finds the SDCard, unmounts it if necessary, and writes only what's
+necessary to the card to reduce the time it takes. If you'd like to run `dd`,
+you can still do so as follows:
+
+    $ sudo dd if=buildroot/output/images/raspberrypi.img of=/dev/sdc bs=1M
+
+Insert the SDCard into a Raspberry Pi, and watch it boot over the serial
 port. Log in as `root`.
 
 # On device firmware update
@@ -73,18 +79,18 @@ can update files directly on the rootfs, you can have a small firmware update
 program on a dedicated partition that knows how to update the main partition, or
 you can have two locations on the SDCard/eMMC and ping/pong between them. This
 section describes the latter setup. The `fwup` configuration can be found in
-`board/bbb/fwup-pingpong.conf` and it creates a SDCard/eMMC layout like the
+`board/raspberrypi/fwup-pingpong.conf` and it creates a SDCard/eMMC layout like the
 following:
 
 | Section        | Description |
 | -------------- | ----------- |
 | MBR            | Standard 512 byte master boot record |
-| Boot partition | About 1 MiB; contains u-boot.img, uEnv.txt, etc. |
+| Boot partition | Contains the kernel, config.txt, etc. |
 | Rootfs A partition | Configured to be 128 MiB; contains rootfs as built by Buildroot |
 | Rootfs B partition | Configured to be 128 MiB; unused until the firmware update |
 | Application data partition | FAT32 partition used for demonstration. Application data that should survive firmware updates would be put here. |
 
-The way it works is that uboot boots Linux from Rootfs A. At a later point in
+The way it works is that the bootloader boots Linux from Rootfs A. At a later point in
 time, the user applies an update. This gets written to the Rootfs B partition.
 After all of the data gets written, the MBR will be updated to make uboot boot
 Linux from the Rootfs B partition. This has a nice property in that if the user
@@ -96,7 +102,10 @@ is buggy. To recover from that, you could create a uboot script that boots from
 the opposite rootfs partition if you hold down a button or something. That is
 not demonstrated here.
 
-## Building the demo
+## Building the demo for the Beaglebone Black
+
+Warning: This exact details could be out of date since I haven't been using BBBs lately.
+The general idea is still the same.
 
 For the demo, we need an two firmware files, "v1" and "v2". We'll install the
 "v1" firmware and then upgrade to the "v2" firmware.
