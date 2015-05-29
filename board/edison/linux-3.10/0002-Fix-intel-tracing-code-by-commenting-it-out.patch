@@ -1,0 +1,1027 @@
+From 5e1cfe2fc302fc2029ba274ecdc0e1e7467ac743 Mon Sep 17 00:00:00 2001
+From: Frank Hunleth <fhunleth@troodon-software.com>
+Date: Sat, 11 Apr 2015 20:08:53 -0400
+Subject: [PATCH 2/2] Fix intel tracing code by commenting it out
+
+---
+ drivers/tty/serial/mfd_core.c    | 152 +++++++++++++++++++--------------------
+ drivers/tty/serial/mfd_pci.c     |  16 ++---
+ drivers/tty/serial/mfd_plat.c    |  16 ++---
+ sound/soc/intel/sst/sst.c        |  18 ++---
+ sound/soc/intel/sst/sst_dsp.c    |  40 +++++------
+ sound/soc/intel/sst/sst_ipc.c    |  18 ++---
+ sound/soc/intel/sst/sst_stream.c |  20 +++---
+ 7 files changed, 140 insertions(+), 140 deletions(-)
+
+diff --git a/drivers/tty/serial/mfd_core.c b/drivers/tty/serial/mfd_core.c
+index bbb318d..0603c7b 100644
+--- a/drivers/tty/serial/mfd_core.c
++++ b/drivers/tty/serial/mfd_core.c
+@@ -39,7 +39,7 @@
+ #include <linux/intel_mid_pm.h>
+ #include <linux/pm_qos.h>
+ 
+-#define CREATE_TRACE_POINTS
++//#define CREATE_TRACE_POINTS
+ #include "mfd.h"
+ 
+ static int hsu_dma_enable = 0xff;
+@@ -76,12 +76,12 @@ static inline void insert_qcmd(struct uart_hsu_port *up, char cmd)
+ 	char *buf;
+ 	char last_cmd;
+ 
+-	trace_hsu_cmd_insert(up->index, cmd);
++	//trace_hsu_cmd_insert(up->index, cmd);
+ 	if (check_qcmd(up, &last_cmd) && last_cmd == cmd &&
+ 		cmd != qcmd_enable_irq && cmd != qcmd_port_irq &&
+                 cmd != qcmd_dma_irq)
+ 		return;
+-	trace_hsu_cmd_add(up->index, cmd);
++	//trace_hsu_cmd_add(up->index, cmd);
+ 	up->qcmd_num++;
+ 	buf = circ->buf + circ->head;
+ 	if (CIRC_SPACE(circ->head, circ->tail, HSU_Q_MAX) < 1)
+@@ -229,7 +229,7 @@ static void serial_set_alt(int index)
+ 	if (test_bit(flag_set_alt, &up->flags))
+ 		return;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	pm_runtime_get_sync(up->dev);
+ 	disable_irq(up->port.irq);
+ 	disable_irq(up->dma_irq);
+@@ -248,7 +248,7 @@ static void serial_set_alt(int index)
+ 	enable_irq(up->dma_irq);
+ 	enable_irq(up->port.irq);
+ 	pm_runtime_put(up->dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void serial_clear_alt(int index)
+@@ -595,10 +595,10 @@ static void serial_hsu_enable_ms(struct uart_port *port)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	up->ier |= UART_IER_MSI;
+ 	serial_sched_cmd(up, qcmd_set_ier);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ /* Protected by spin_lock_irqsave(port->lock) */
+@@ -607,9 +607,9 @@ static void serial_hsu_start_tx(struct uart_port *port)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	serial_sched_cmd(up, qcmd_start_tx);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void serial_hsu_stop_tx(struct uart_port *port)
+@@ -617,9 +617,9 @@ static void serial_hsu_stop_tx(struct uart_port *port)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	serial_sched_cmd(up, qcmd_stop_tx);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void hsu_stop_tx(struct uart_port *port)
+@@ -627,9 +627,9 @@ static void hsu_stop_tx(struct uart_port *port)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	serial_sched_cmd(up, qcmd_stop_tx);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ /* This is always called in spinlock protected mode, so
+@@ -643,10 +643,10 @@ void intel_dma_do_rx(struct uart_hsu_port *up, u32 int_sts)
+ 	struct tty_port *tport = &port->state->port;
+ 	int count;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	tty = tty_port_tty_get(&up->port.state->port);
+ 	if (!tty) {
+-		trace_hsu_func_end(up->index, __func__, "notty");
++		//trace_hsu_func_end(up->index, __func__, "notty");
+ 		return;
+ 	}
+ 
+@@ -672,7 +672,7 @@ void intel_dma_do_rx(struct uart_hsu_port *up, u32 int_sts)
+ 		/* Restart the channel before we leave */
+ 		chan_writel(chan, HSU_CH_CR, 0x3);
+ 		tty_kref_put(tty);
+-		trace_hsu_func_end(up->index, __func__, "nodata");
++		//trace_hsu_func_end(up->index, __func__, "nodata");
+ 		return;
+ 	}
+ 
+@@ -703,7 +703,7 @@ void intel_dma_do_rx(struct uart_hsu_port *up, u32 int_sts)
+ 
+ 	chan_writel(chan, HSU_CH_CR, 0x3);
+ 	tty_kref_put(tty);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 
+ }
+ 
+@@ -712,9 +712,9 @@ static void serial_hsu_stop_rx(struct uart_port *port)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	serial_sched_cmd(up, qcmd_stop_rx);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static inline void receive_chars(struct uart_hsu_port *up, int *status)
+@@ -727,7 +727,7 @@ static inline void receive_chars(struct uart_hsu_port *up, int *status)
+ 	if (!tty)
+ 		return;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	do {
+ 		ch = serial_in(up, UART_RX);
+ 		flag = TTY_NORMAL;
+@@ -786,7 +786,7 @@ static inline void receive_chars(struct uart_hsu_port *up, int *status)
+ 	} while ((*status & UART_LSR_DR) && max_count--);
+ 
+ 	tty_flip_buffer_push(tport);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void transmit_chars(struct uart_hsu_port *up)
+@@ -796,20 +796,20 @@ static void transmit_chars(struct uart_hsu_port *up)
+ 	int count;
+ 
+ 	spin_lock_irqsave(&up->port.lock, flags);
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (up->port.x_char) {
+ 		serial_out(up, UART_TX, up->port.x_char);
+ 		up->port.icount.tx++;
+ 		up->port.x_char = 0;
+-		trace_hsu_func_end(up->index, __func__, "x_char");
++		//trace_hsu_func_end(up->index, __func__, "x_char");
+ 		goto out;
+ 	}
+ 	if (uart_circ_empty(xmit) || uart_tx_stopped(&up->port)) {
+ 		hsu_stop_tx(&up->port);
+-		if (uart_circ_empty(xmit))
+-			trace_hsu_func_end(up->index, __func__, "empty");
+-		else
+-			trace_hsu_func_end(up->index, __func__, "stop");
++//		if (uart_circ_empty(xmit))
++			//trace_hsu_func_end(up->index, __func__, "empty");
++//		else
++			//trace_hsu_func_end(up->index, __func__, "stop");
+ 		goto out;
+ 	}
+ 
+@@ -834,10 +834,10 @@ static void transmit_chars(struct uart_hsu_port *up)
+ 
+ 	if (uart_circ_empty(xmit)) {
+ 		hsu_stop_tx(&up->port);
+-		trace_hsu_func_end(up->index, __func__, "tx_complete");
++		//trace_hsu_func_end(up->index, __func__, "tx_complete");
+ 	}
+-	else
+-		trace_hsu_func_end(up->index, __func__, "");
++//	else
++		//trace_hsu_func_end(up->index, __func__, "");
+ 
+ out:
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+@@ -852,9 +852,9 @@ static void check_modem_status(struct uart_hsu_port *up)
+ 	int status;
+ 	int delta_msr = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	status = serial_in(up, UART_MSR);
+-	trace_hsu_mctrl(up->index, status);
++	//trace_hsu_mctrl(up->index, status);
+ 	if (port->flags & ASYNC_CTS_FLOW && !cfg->hw_ctrl_cts) {
+ 		if (tty->hw_stopped) {
+ 			if (status & UART_MSR_CTS) {
+@@ -893,7 +893,7 @@ static void check_modem_status(struct uart_hsu_port *up)
+ 
+ 	if (delta_msr)
+ 		wake_up_interruptible(&up->port.state->port.delta_msr_wait);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void hsu_dma_chan_handler(struct hsu_port *hsu, int index)
+@@ -926,18 +926,18 @@ static irqreturn_t hsu_port_irq(int irq, void *dev_id)
+ 	unsigned long flags;
+ 	u8 lsr;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	up->port_irq_num++;
+ 
+ 	if (up->hw_type == hsu_intel) {
+ 		if (unlikely(!test_bit(flag_set_alt, &up->flags))) {
+ 			up->port_irq_no_alt++;
+-			trace_hsu_func_end(up->index, __func__, "noalt");
++			//trace_hsu_func_end(up->index, __func__, "noalt");
+ 			return IRQ_NONE;
+ 		}
+ 	} else {
+ 		if (unlikely(test_bit(flag_suspend, &up->flags))) {
+-			trace_hsu_func_end(up->index, __func__, "suspend");
++			//trace_hsu_func_end(up->index, __func__, "suspend");
+ 			return IRQ_NONE;
+ 		}
+ 
+@@ -952,7 +952,7 @@ static irqreturn_t hsu_port_irq(int irq, void *dev_id)
+ 			 */
+ 			serial_in(up, 0x818 / 4);
+ 			serial_in(up, 0x820 / 4);
+-			trace_hsu_func_end(up->index, __func__, "workaround");
++			//trace_hsu_func_end(up->index, __func__, "workaround");
+ 			return IRQ_NONE;
+ 		}
+ 	}
+@@ -962,7 +962,7 @@ static irqreturn_t hsu_port_irq(int irq, void *dev_id)
+ 		/*SCU might forward it too late when it is closed already*/
+ 		serial_in(up, UART_LSR);
+ 		up->port_irq_no_startup++;
+-		trace_hsu_func_end(up->index, __func__, "nostart");
++		//trace_hsu_func_end(up->index, __func__, "nostart");
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -976,7 +976,7 @@ static irqreturn_t hsu_port_irq(int irq, void *dev_id)
+ 				UART_LSR_FE | UART_LSR_OE)))
+ 			dev_warn(up->dev,
+ 				"Got LSR irq(0x%02x) while using DMA", lsr);
+-		trace_hsu_func_end(up->index, __func__, "lsr");
++		//trace_hsu_func_end(up->index, __func__, "lsr");
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -985,7 +985,7 @@ static irqreturn_t hsu_port_irq(int irq, void *dev_id)
+ 	serial_sched_cmd(up, qcmd_port_irq);
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+ 
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1022,7 +1022,7 @@ static unsigned int serial_hsu_tx_empty(struct uart_port *port)
+ 		container_of(port, struct uart_hsu_port, port);
+ 	int ret = 1;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	pm_runtime_get_sync(up->dev);
+ 	serial_sched_stop(up);
+ 
+@@ -1032,7 +1032,7 @@ static unsigned int serial_hsu_tx_empty(struct uart_port *port)
+ 		(serial_in(up, UART_LSR) & UART_LSR_TEMT ? TIOCSER_TEMT : 0);
+ 	serial_sched_start(up);
+ 	pm_runtime_put(up->dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ 
+@@ -1043,7 +1043,7 @@ static unsigned int serial_hsu_get_mctrl(struct uart_port *port)
+ 	unsigned char status = up->msr;
+ 	unsigned int ret = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (status & UART_MSR_DCD)
+ 		ret |= TIOCM_CAR;
+ 	if (status & UART_MSR_RI)
+@@ -1052,13 +1052,13 @@ static unsigned int serial_hsu_get_mctrl(struct uart_port *port)
+ 		ret |= TIOCM_DSR;
+ 	if (status & UART_MSR_CTS)
+ 		ret |= TIOCM_CTS;
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ 
+ static void set_mctrl(struct uart_hsu_port *up, unsigned int mctrl)
+ {
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (mctrl & TIOCM_RTS)
+ 		up->mcr |= UART_MCR_RTS;
+ 	if (mctrl & TIOCM_DTR)
+@@ -1069,10 +1069,10 @@ static void set_mctrl(struct uart_hsu_port *up, unsigned int mctrl)
+ 		up->mcr |= UART_MCR_OUT2;
+ 	if (mctrl & TIOCM_LOOP)
+ 		up->mcr |= UART_MCR_LOOP;
+-	trace_hsu_mctrl(up->index, mctrl);
++	//trace_hsu_mctrl(up->index, mctrl);
+ 	serial_out(up, UART_MCR, up->mcr);
+ 	udelay(100);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void serial_hsu_set_mctrl(struct uart_port *port, unsigned int mctrl)
+@@ -1080,7 +1080,7 @@ static void serial_hsu_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (mctrl & TIOCM_RTS)
+ 		up->mcr |= UART_MCR_RTS;
+ 	if (mctrl & TIOCM_DTR)
+@@ -1092,7 +1092,7 @@ static void serial_hsu_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ 	if (mctrl & TIOCM_LOOP)
+ 		up->mcr |= UART_MCR_LOOP;
+ 	serial_sched_cmd(up, qcmd_set_mcr);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void serial_hsu_break_ctl(struct uart_port *port, int break_state)
+@@ -1100,7 +1100,7 @@ static void serial_hsu_break_ctl(struct uart_port *port, int break_state)
+ 	struct uart_hsu_port *up =
+ 		container_of(port, struct uart_hsu_port, port);
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	pm_runtime_get_sync(up->dev);
+ 	serial_sched_stop(up);
+ 	if (break_state == -1)
+@@ -1110,7 +1110,7 @@ static void serial_hsu_break_ctl(struct uart_port *port, int break_state)
+ 	serial_out(up, UART_LCR, up->lcr);
+ 	serial_sched_start(up);
+ 	pm_runtime_put(up->dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ /*
+@@ -1129,7 +1129,7 @@ static int serial_hsu_startup(struct uart_port *port)
+ 		container_of(port, struct uart_hsu_port, port);
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	mutex_lock(&lock);
+ 
+ 	pm_runtime_get_sync(up->dev);
+@@ -1231,7 +1231,7 @@ static int serial_hsu_startup(struct uart_port *port)
+ out:
+ 	pm_runtime_put(up->dev);
+ 	mutex_unlock(&lock);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ 
+@@ -1242,7 +1242,7 @@ static void serial_hsu_shutdown(struct uart_port *port)
+ 		container_of(port, struct uart_hsu_port, port);
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	mutex_lock(&lock);
+ 	pm_runtime_get_sync(up->dev);
+ 	serial_sched_stop(up);
+@@ -1281,7 +1281,7 @@ static void serial_hsu_shutdown(struct uart_port *port)
+ 
+ 	pm_runtime_put_sync(up->dev);
+ 	mutex_unlock(&lock);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ /* calculate mul,div for low fref e.g. TNG B0 38.4M
+@@ -1352,7 +1352,7 @@ serial_hsu_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	 */
+ 	u32 ps = 0, mul = 0, div = 0x3D09, m = 0, n = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	switch (termios->c_cflag & CSIZE) {
+ 	case CS5:
+ 		cval = UART_LCR_WLEN5;
+@@ -1388,7 +1388,7 @@ serial_hsu_set_termios(struct uart_port *port, struct ktermios *termios,
+ 		cval |= UART_LCR_EPAR;
+ 
+ 	baud = uart_get_baud_rate(port, termios, old, 0, 4000000);
+-	trace_hsu_set_termios(up->index, baud, termios->c_cflag & CRTSCTS ? 1 : 0);
++	//trace_hsu_set_termios(up->index, baud, termios->c_cflag & CRTSCTS ? 1 : 0);
+ 
+ 	if (up->hw_type == hsu_intel) {
+ 		/*
+@@ -1568,7 +1568,7 @@ serial_hsu_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	serial_sched_start(up);
+ 	serial_sched_sync(up);
+ 	pm_runtime_put(up->dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void
+@@ -1624,10 +1624,10 @@ static void serial_hsu_wake_peer(struct uart_port *port)
+ 			container_of(port, struct uart_hsu_port, port);
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (cfg->wake_peer)
+ 		cfg->wake_peer(cfg->dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ #define BOTH_EMPTY (UART_LSR_TEMT | UART_LSR_THRE)
+@@ -1801,13 +1801,13 @@ static irqreturn_t wakeup_irq(int irq, void *dev)
+ 	struct uart_hsu_port *up = dev_get_drvdata(dev);
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	set_bit(flag_active, &up->flags);
+ 	if (cfg->preamble && cfg->hw_set_rts)
+ 		cfg->hw_set_rts(up->index, 1);
+ 	pm_runtime_get(dev);
+ 	pm_runtime_put(dev);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1887,7 +1887,7 @@ int serial_hsu_do_suspend(struct uart_hsu_port *up)
+ 	char cmd;
+ 	unsigned long flags;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 
+ 	if (test_bit(flag_startup, &up->flags)) {
+ 		if (up->hw_type == hsu_intel &&
+@@ -1966,7 +1966,7 @@ int serial_hsu_do_suspend(struct uart_hsu_port *up)
+ 	if (up->hw_type == hsu_dw)
+ 		enable_irq(up->port.irq);
+ 
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return 0;
+ err:
+ 	if (cfg->hw_set_rts)
+@@ -1983,7 +1983,7 @@ err:
+ 	serial_sched_sync(up);
+ busy:
+ 	pm_schedule_suspend(up->dev, cfg->idle);
+-	trace_hsu_func_end(up->index, __func__, "busy");
++	//trace_hsu_func_end(up->index, __func__, "busy");
+ 	return -EBUSY;
+ }
+ EXPORT_SYMBOL(serial_hsu_do_suspend);
+@@ -1993,9 +1993,9 @@ int serial_hsu_do_resume(struct uart_hsu_port *up)
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 	unsigned long flags;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (!test_and_clear_bit(flag_suspend, &up->flags)) {
+-		trace_hsu_func_end(up->index, __func__, "ignore");
++		//trace_hsu_func_end(up->index, __func__, "ignore");
+ 		return 0;
+ 	}
+ 	if (up->hw_type == hsu_dw)
+@@ -2017,7 +2017,7 @@ int serial_hsu_do_resume(struct uart_hsu_port *up)
+ 	serial_sched_cmd(up, qcmd_get_msr);
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+ 	serial_sched_sync(up);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return 0;
+ }
+ EXPORT_SYMBOL(serial_hsu_do_resume);
+@@ -2028,7 +2028,7 @@ int serial_hsu_do_runtime_idle(struct uart_hsu_port *up)
+ {
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (cfg->type == debug_port
+ 			&& system_state == SYSTEM_BOOTING)
+ 		/* if HSU is set as default console, but earlyprintk is not hsu,
+@@ -2040,7 +2040,7 @@ int serial_hsu_do_runtime_idle(struct uart_hsu_port *up)
+ 		pm_schedule_suspend(up->dev, 30000);
+ 	else
+ 		pm_schedule_suspend(up->dev, cfg->idle);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return -EBUSY;
+ }
+ EXPORT_SYMBOL(serial_hsu_do_runtime_idle);
+@@ -2056,9 +2056,9 @@ static void serial_hsu_command(struct uart_hsu_port *up)
+ 	struct hsu_dma_chan *rxc = up->rxc;
+ 	struct hsu_port_cfg *cfg = phsu->configs[up->index];
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	if (unlikely(test_bit(flag_cmd_off, &up->flags))) {
+-		trace_hsu_func_end(up->index, __func__, "cmd_off");
++		//trace_hsu_func_end(up->index, __func__, "cmd_off");
+ 		return;
+ 	}
+ 	if (unlikely(test_bit(flag_suspend, &up->flags))) {
+@@ -2066,14 +2066,14 @@ static void serial_hsu_command(struct uart_hsu_port *up)
+ 			"Error to handle cmd while port is suspended\n");
+ 		if (check_qcmd(up, &cmd))
+ 			dev_err(up->dev, "Command pending: %d\n", cmd);
+-		trace_hsu_func_end(up->index, __func__, "suspend");
++		//trace_hsu_func_end(up->index, __func__, "suspend");
+ 		return;
+ 	}
+ 	set_bit(flag_active, &up->flags);
+ 	spin_lock_irqsave(&up->port.lock, flags);
+ 	while (get_qcmd(up, &cmd)) {
+ 		spin_unlock_irqrestore(&up->port.lock, flags);
+-		trace_hsu_cmd_start(up->index, cmd);
++		//trace_hsu_cmd_start(up->index, cmd);
+ 		switch (cmd) {
+ 		case qcmd_overflow:
+ 			dev_err(up->dev, "queue overflow!!\n");
+@@ -2212,7 +2212,7 @@ static void serial_hsu_command(struct uart_hsu_port *up)
+ 			dev_err(up->dev, "invalid command!!\n");
+ 			break;
+ 		}
+-		trace_hsu_cmd_end(up->index, cmd);
++		//trace_hsu_cmd_end(up->index, cmd);
+ 		spin_lock_irqsave(&up->port.lock, flags);
+ 		if (unlikely(test_bit(flag_cmd_off, &up->flags)))
+ 			break;
+@@ -2222,7 +2222,7 @@ static void serial_hsu_command(struct uart_hsu_port *up)
+ 		up->msr |= UART_MSR_CTS;
+ 	check_modem_status(up);
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ }
+ 
+ static void serial_hsu_tasklet(unsigned long data)
+diff --git a/drivers/tty/serial/mfd_pci.c b/drivers/tty/serial/mfd_pci.c
+index 66c7138..ee3d75b 100644
+--- a/drivers/tty/serial/mfd_pci.c
++++ b/drivers/tty/serial/mfd_pci.c
+@@ -39,9 +39,9 @@ static int serial_hsu_pci_suspend(struct device *dev)
+ 	int ret = 0;
+ 
+ 	if (up) {
+-		trace_hsu_func_start(up->index, __func__);
++		//trace_hsu_func_start(up->index, __func__);
+ 		ret = serial_hsu_do_suspend(up);
+-		trace_hsu_func_end(up->index, __func__, "");
++		//trace_hsu_func_end(up->index, __func__, "");
+ 	}
+ 	return ret;
+ }
+@@ -53,9 +53,9 @@ static int serial_hsu_pci_resume(struct device *dev)
+ 	int ret = 0;
+ 
+ 	if (up) {
+-		trace_hsu_func_start(up->index, __func__);
++		//trace_hsu_func_start(up->index, __func__);
+ 		ret = serial_hsu_do_resume(up);
+-		trace_hsu_func_end(up->index, __func__, "");
++		//trace_hsu_func_end(up->index, __func__, "");
+ 	}
+ 	return ret;
+ }
+@@ -79,9 +79,9 @@ static int serial_hsu_pci_runtime_suspend(struct device *dev)
+ 	struct uart_hsu_port *up = pci_get_drvdata(pdev);
+ 	int ret = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	ret = serial_hsu_do_suspend(up);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ 
+@@ -91,9 +91,9 @@ static int serial_hsu_pci_runtime_resume(struct device *dev)
+ 	struct uart_hsu_port *up = pci_get_drvdata(pdev);
+ 	int ret = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	ret = serial_hsu_do_resume(up);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ #else
+diff --git a/drivers/tty/serial/mfd_plat.c b/drivers/tty/serial/mfd_plat.c
+index 261acd5..dd473cc 100644
+--- a/drivers/tty/serial/mfd_plat.c
++++ b/drivers/tty/serial/mfd_plat.c
+@@ -37,9 +37,9 @@ static int serial_hsu_plat_suspend(struct device *dev)
+ 	int ret = 0;
+ 
+ 	if (up) {
+-		trace_hsu_func_start(up->index, __func__);
++		//trace_hsu_func_start(up->index, __func__);
+ 		ret = serial_hsu_do_suspend(up);
+-		trace_hsu_func_end(up->index, __func__, "");
++		//trace_hsu_func_end(up->index, __func__, "");
+ 	}
+ 	return ret;
+ }
+@@ -50,9 +50,9 @@ static int serial_hsu_plat_resume(struct device *dev)
+ 	int ret = 0;
+ 
+ 	if (up) {
+-		trace_hsu_func_start(up->index, __func__);
++		//trace_hsu_func_start(up->index, __func__);
+ 		ret = serial_hsu_do_resume(up);
+-		trace_hsu_func_end(up->index, __func__, "");
++		//trace_hsu_func_end(up->index, __func__, "");
+ 	}
+ 	return ret;
+ }
+@@ -74,9 +74,9 @@ static int serial_hsu_plat_runtime_suspend(struct device *dev)
+ 	struct uart_hsu_port *up = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	ret = serial_hsu_do_suspend(up);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ 
+@@ -85,9 +85,9 @@ static int serial_hsu_plat_runtime_resume(struct device *dev)
+ 	struct uart_hsu_port *up = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
+-	trace_hsu_func_start(up->index, __func__);
++	//trace_hsu_func_start(up->index, __func__);
+ 	ret = serial_hsu_do_resume(up);
+-	trace_hsu_func_end(up->index, __func__, "");
++	//trace_hsu_func_end(up->index, __func__, "");
+ 	return ret;
+ }
+ #else
+diff --git a/sound/soc/intel/sst/sst.c b/sound/soc/intel/sst/sst.c
+index 0f59e47..075ade7 100644
+--- a/sound/soc/intel/sst/sst.c
++++ b/sound/soc/intel/sst/sst.c
+@@ -50,8 +50,8 @@
+ #include "../platform_ipc_v2.h"
+ #include "sst.h"
+ 
+-#define CREATE_TRACE_POINTS
+-#include "sst_trace.h"
++//#define CREATE_TRACE_POINTS
++//#include "sst_trace.h"
+ 
+ MODULE_AUTHOR("Vinod Koul <vinod.koul@intel.com>");
+ MODULE_AUTHOR("Harsha Priya <priya.harsha@intel.com>");
+@@ -130,9 +130,9 @@ static irqreturn_t intel_sst_interrupt_mrfld(int irq, void *context)
+ 		isr.part.done_interrupt = 1;
+ 		sst_shim_write64(drv->shim, SST_ISRX, isr.full);
+ 		spin_unlock(&drv->ipc_spin_lock);
+-		trace_sst_ipc("ACK   <-", header.p.header_high.full,
+-					  header.p.header_low_payload,
+-					  header.p.header_high.part.drv_id);
++//		trace_sst_ipc("ACK   <-", header.p.header_high.full,
++//					  header.p.header_low_payload,
++//					  header.p.header_high.part.drv_id);
+ 		queue_work(drv->post_msg_wq, &drv->ipc_post_msg.wq);
+ 		retval = IRQ_HANDLED;
+ 	}
+@@ -161,9 +161,9 @@ static irqreturn_t intel_sst_interrupt_mrfld(int irq, void *context)
+ 		msg->mrfld_header = header;
+ 		msg->is_process_reply =
+ 			SST_IS_PROCESS_REPLY(header.p.header_high.part.msg_id);
+-		trace_sst_ipc("REPLY <-", msg->mrfld_header.p.header_high.full,
+-					  msg->mrfld_header.p.header_low_payload,
+-					  msg->mrfld_header.p.header_high.part.drv_id);
++//		trace_sst_ipc("REPLY <-", msg->mrfld_header.p.header_high.full,
++//					  msg->mrfld_header.p.header_low_payload,
++//					  msg->mrfld_header.p.header_high.part.drv_id);
+ 		spin_lock(&drv->rx_msg_lock);
+ 		list_add_tail(&msg->node, &drv->rx_list);
+ 		spin_unlock(&drv->rx_msg_lock);
+@@ -486,7 +486,7 @@ int sst_request_firmware_async(struct intel_sst_drv *ctx)
+ 			ctx->pci_id, ".bin");
+ 	pr_debug("Requesting FW %s now...\n", ctx->firmware_name);
+ 
+-	trace_sst_fw_download("Request firmware async", ctx->sst_state);
++//	trace_sst_fw_download("Request firmware async", ctx->sst_state);
+ 
+ 	ret = request_firmware_nowait(THIS_MODULE, 1, ctx->firmware_name,
+ 			ctx->dev, GFP_KERNEL, ctx, sst_firmware_load_cb);
+diff --git a/sound/soc/intel/sst/sst_dsp.c b/sound/soc/intel/sst/sst_dsp.c
+index edfe471..e544a94 100644
+--- a/sound/soc/intel/sst/sst_dsp.c
++++ b/sound/soc/intel/sst/sst_dsp.c
+@@ -42,7 +42,7 @@
+ #include "../sst_platform.h"
+ #include "../platform_ipc_v2.h"
+ #include "sst.h"
+-#include "sst_trace.h"
++//#include "sst_trace.h"
+ 
+ #ifndef CONFIG_X86_64
+ #define MEMCPY_TOIO memcpy_toio
+@@ -1171,7 +1171,7 @@ void sst_firmware_load_cb(const struct firmware *fw, void *context)
+ 		goto exit;
+ 
+ 	pr_debug("Request Fw completed\n");
+-	trace_sst_fw_download("End of FW request", ctx->sst_state);
++//	trace_sst_fw_download("End of FW request", ctx->sst_state);
+ 
+ 	if (ctx->info.use_elf == true)
+ 		ret = sst_validate_elf(fw, false);
+@@ -1191,7 +1191,7 @@ void sst_firmware_load_cb(const struct firmware *fw, void *context)
+ 	pr_debug("phys: %lx", (unsigned long)virt_to_phys(ctx->fw_in_mem));
+ 	memcpy(ctx->fw_in_mem, fw->data, fw->size);
+ 
+-	trace_sst_fw_download("Start FW parsing", ctx->sst_state);
++//	trace_sst_fw_download("Start FW parsing", ctx->sst_state);
+ 	if (ctx->use_dma) {
+ 		if (ctx->info.use_elf == true)
+ 			ret = sst_parse_elf_fw_dma(ctx, ctx->fw_in_mem,
+@@ -1207,7 +1207,7 @@ void sst_firmware_load_cb(const struct firmware *fw, void *context)
+ 			ret = sst_parse_fw_memcpy(ctx->fw_in_mem, fw->size,
+ 							&ctx->memcpy_list);
+ 	}
+-	trace_sst_fw_download("End FW parsing", ctx->sst_state);
++//	trace_sst_fw_download("End FW parsing", ctx->sst_state);
+ 	if (ret) {
+ 		kfree(ctx->fw_in_mem);
+ 		ctx->fw_in_mem = NULL;
+@@ -1255,7 +1255,7 @@ static int sst_request_fw(struct intel_sst_drv *sst)
+ 		pr_err("request fw failed %d\n", retval);
+ 		return retval;
+ 	}
+-	trace_sst_fw_download("End of FW request", sst->sst_state);
++//	trace_sst_fw_download("End of FW request", sst->sst_state);
+ 	if (sst->info.use_elf == true)
+ 		retval = sst_validate_elf(fw, false);
+ 	if (retval != 0) {
+@@ -1271,7 +1271,7 @@ static int sst_request_fw(struct intel_sst_drv *sst)
+ 	pr_debug("copied fw to %p", sst->fw_in_mem);
+ 	pr_debug("phys: %lx", (unsigned long)virt_to_phys(sst->fw_in_mem));
+ 	memcpy(sst->fw_in_mem, fw->data, fw->size);
+-	trace_sst_fw_download("Start FW parsing", sst->sst_state);
++//	trace_sst_fw_download("Start FW parsing", sst->sst_state);
+ 	if (sst->use_dma) {
+ 		if (sst->info.use_elf == true)
+ 			retval = sst_parse_elf_fw_dma(sst, sst->fw_in_mem,
+@@ -1287,7 +1287,7 @@ static int sst_request_fw(struct intel_sst_drv *sst)
+ 			retval = sst_parse_fw_memcpy(sst->fw_in_mem, fw->size,
+ 							&sst->memcpy_list);
+ 	}
+-	trace_sst_fw_download("End FW parsing", sst->sst_state);
++//	trace_sst_fw_download("End FW parsing", sst->sst_state);
+ 	if (retval) {
+ 		kfree(sst->fw_in_mem);
+ 		sst->fw_in_mem = NULL;
+@@ -1547,8 +1547,8 @@ int sst_load_fw(void)
+ 			pr_err("sst : wait for FW to be downloaded\n");
+ 			return -EBUSY;
+ 		} else {
+-			trace_sst_fw_download("Req FW sent in check device",
+-						sst_drv_ctx->sst_state);
++//			trace_sst_fw_download("Req FW sent in check device",
++//						sst_drv_ctx->sst_state);
+ 			pr_debug("sst: FW not in memory retry to download\n");
+ 			ret_val = sst_request_fw(sst_drv_ctx);
+ 			if (ret_val)
+@@ -1568,7 +1568,7 @@ int sst_load_fw(void)
+ 	if (ret_val)
+ 		goto restore;
+ 
+-	trace_sst_fw_download("Start FW copy", sst_drv_ctx->sst_state);
++//	trace_sst_fw_download("Start FW copy", sst_drv_ctx->sst_state);
+ 	if (sst_drv_ctx->use_dma) {
+ 		ret_val = sst_do_dma(&sst_drv_ctx->fw_sg_list);
+ 		if (ret_val) {
+@@ -1579,21 +1579,21 @@ int sst_load_fw(void)
+ 		sst_do_memcpy(&sst_drv_ctx->memcpy_list);
+ 	}
+ 
+-	trace_sst_fw_download("Post download for Lib start",
+-			sst_drv_ctx->sst_state);
++//	trace_sst_fw_download("Post download for Lib start",
++//			sst_drv_ctx->sst_state);
+ 	/* Write the DRAM/DCCM config before enabling FW */
+ 	if (sst_drv_ctx->ops->post_download)
+ 		sst_drv_ctx->ops->post_download(sst_drv_ctx);
+-	trace_sst_fw_download("Post download for Lib end",
+-			sst_drv_ctx->sst_state);
++//	trace_sst_fw_download("Post download for Lib end",
++//			sst_drv_ctx->sst_state);
+ 	sst_drv_ctx->sst_state = SST_FW_LOADED;
+ 
+ 	/* bring sst out of reset */
+ 	ret_val = sst_drv_ctx->ops->start();
+ 	if (ret_val)
+ 		goto restore;
+-	trace_sst_fw_download("DSP reset done",
+-			sst_drv_ctx->sst_state);
++//	trace_sst_fw_download("DSP reset done",
++//			sst_drv_ctx->sst_state);
+ 
+ 	ret_val = sst_wait_timeout(sst_drv_ctx, block);
+ 	if (ret_val) {
+@@ -1946,14 +1946,14 @@ int sst_load_all_modules_elf(struct intel_sst_drv *ctx, struct sst_module_info *
+ 
+ 	for (i = 0; i < num_modules; i++) {
+ 		mod = &mod_table[i];
+-		trace_sst_lib_download("Start of Request Lib", mod->name);
++//		trace_sst_lib_download("Start of Request Lib", mod->name);
+ 		retval = sst_request_lib_elf(mod, &fw_lib,
+ 						ctx->pci_id, ctx->dev);
+ 		if (retval < 0)
+ 			continue;
+ 		lib_size = fw_lib->size;
+ 
+-		trace_sst_lib_download("End of Request Lib", mod->name);
++//		trace_sst_lib_download("End of Request Lib", mod->name);
+ 		retval = sst_validate_elf(fw_lib, true);
+ 		if (retval < 0) {
+ 			pr_err("library is not valid elf %d\n", retval);
+@@ -1980,10 +1980,10 @@ int sst_load_all_modules_elf(struct intel_sst_drv *ctx, struct sst_module_info *
+ 		}
+ 		pr_debug("relocation done\n");
+ 		release_firmware(fw_lib);
+-		trace_sst_lib_download("Start of download Lib", mod->name);
++//		trace_sst_lib_download("Start of download Lib", mod->name);
+ 		/* write to ddr imr region,use memcpy method */
+ 		retval = sst_download_lib_elf(ctx, out_elf, lib_size);
+-		trace_sst_lib_download("End of download Lib", mod->name);
++//		trace_sst_lib_download("End of download Lib", mod->name);
+ 		mod->status = SST_LIB_DOWNLOADED;
+ 		kfree(out_elf);
+ 	}
+diff --git a/sound/soc/intel/sst/sst_ipc.c b/sound/soc/intel/sst/sst_ipc.c
+index 097c715..55bf321 100644
+--- a/sound/soc/intel/sst/sst_ipc.c
++++ b/sound/soc/intel/sst/sst_ipc.c
+@@ -36,7 +36,7 @@
+ #include "../sst_platform.h"
+ #include "../platform_ipc_v2.h"
+ #include "sst.h"
+-#include "sst_trace.h"
++//#include "sst_trace.h"
+ 
+ void sst_dump_to_buffer(const void *from, size_t len, char *buf)
+ {
+@@ -193,10 +193,10 @@ void sst_post_message_mrfld(struct work_struct *work)
+ 		memcpy_toio(sst_drv_ctx->mailbox + SST_MAILBOX_SEND,
+ 			    msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
+ 
+-	trace_sst_ipc("POST  ->", msg->mrfld_header.p.header_high.full,
+-				  msg->mrfld_header.p.header_low_payload,
+-				  msg->mrfld_header.p.header_high.part.drv_id);
+-	trace_sst_ipc_mailbox(msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
++//	trace_sst_ipc("POST  ->", msg->mrfld_header.p.header_high.full,
++//				  msg->mrfld_header.p.header_low_payload,
++//				  msg->mrfld_header.p.header_high.part.drv_id);
++//	trace_sst_ipc_mailbox(msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
+ 	sst_shim_write64(sst_drv_ctx->shim, SST_IPCX, msg->mrfld_header.full);
+ 	spin_unlock_irqrestore(&sst_drv_ctx->ipc_spin_lock, irq_flags);
+ 	pr_debug("sst: Post message: header = %x\n",
+@@ -286,10 +286,10 @@ int sst_sync_post_message_mrfld(struct ipc_post *msg)
+ 		memcpy_toio(sst_drv_ctx->mailbox + SST_MAILBOX_SEND,
+ 			msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
+ 
+-	trace_sst_ipc("POST  ->", msg->mrfld_header.p.header_high.full,
+-				  msg->mrfld_header.p.header_low_payload,
+-				  msg->mrfld_header.p.header_high.part.drv_id);
+-	trace_sst_ipc_mailbox(msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
++//	trace_sst_ipc("POST  ->", msg->mrfld_header.p.header_high.full,
++//				  msg->mrfld_header.p.header_low_payload,
++//				  msg->mrfld_header.p.header_high.part.drv_id);
++//	trace_sst_ipc_mailbox(msg->mailbox_data, msg->mrfld_header.p.header_low_payload);
+ 	sst_shim_write64(sst_drv_ctx->shim, SST_IPCX, msg->mrfld_header.full);
+ 
+ out:
+diff --git a/sound/soc/intel/sst/sst_stream.c b/sound/soc/intel/sst/sst_stream.c
+index 9e71b44..d46b2b0 100644
+--- a/sound/soc/intel/sst/sst_stream.c
++++ b/sound/soc/intel/sst/sst_stream.c
+@@ -37,7 +37,7 @@
+ #include "../sst_platform.h"
+ #include "../platform_ipc_v2.h"
+ #include "sst.h"
+-#include "sst_trace.h"
++//#include "sst_trace.h"
+ 
+ /**
+  * sst_alloc_stream - Send msg for a new stream ID
+@@ -194,7 +194,7 @@ int sst_alloc_stream_mrfld(char *params, struct sst_block *block)
+ 	memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+ 	memcpy(msg->mailbox_data + sizeof(dsp_hdr), &alloc_param,
+ 			sizeof(alloc_param));
+-	trace_sst_stream("ALLOC ->", str_id, pipe_id);
++//	trace_sst_stream("ALLOC ->", str_id, pipe_id);
+ 	str_info = &sst_drv_ctx->streams[str_id];
+ 	pr_debug("header:%x\n", msg->mrfld_header.p.header_high.full);
+ 	pr_debug("response rqd: %x", msg->mrfld_header.p.header_high.part.res_rqd);
+@@ -243,7 +243,7 @@ int sst_start_stream(int str_id)
+ 				str_info->pipe_id, sizeof(u16));
+ 		memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+ 		memset(msg->mailbox_data + sizeof(dsp_hdr), 0, sizeof(u16));
+-		trace_sst_stream("START ->", str_id, str_info->pipe_id);
++//		trace_sst_stream("START ->", str_id, str_info->pipe_id);
+ 		pr_info("Start for str %d pipe %#x\n", str_id, str_info->pipe_id);
+ 
+ 	} else {
+@@ -284,7 +284,7 @@ int sst_send_byte_stream_mrfld(void *sbytes)
+ 	msg->mrfld_header.p.header_low_payload = length;
+ 	pr_debug("length is %d\n", length);
+ 	memcpy(msg->mailbox_data, &bytes->bytes, bytes->len);
+-	trace_sst_stream("BYTES ->", bytes->type, bytes->pipe_id);
++//	trace_sst_stream("BYTES ->", bytes->type, bytes->pipe_id);
+ 	if (bytes->block) {
+ 		block = sst_create_block(sst_drv_ctx, bytes->ipc_msg, pvt_id);
+ 		if (block == NULL) {
+@@ -310,7 +310,7 @@ int sst_send_byte_stream_mrfld(void *sbytes)
+ 			unsigned char *r = block->data;
+ 			pr_debug("read back %d bytes", bytes->len);
+ 			memcpy(bytes->bytes, r, bytes->len);
+-			trace_sst_stream("BYTES <-", bytes->type, bytes->pipe_id);
++//			trace_sst_stream("BYTES <-", bytes->type, bytes->pipe_id);
+ 		}
+ 	}
+ 	if (bytes->block)
+@@ -387,7 +387,7 @@ int sst_pause_stream(int str_id)
+ 			sst_fill_header_dsp(&dsp_hdr, IPC_IA_PAUSE_STREAM_MRFLD,
+ 						str_info->pipe_id, 0);
+ 			memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+-			trace_sst_stream("PAUSE ->", str_id, str_info->pipe_id);
++//			trace_sst_stream("PAUSE ->", str_id, str_info->pipe_id);
+ 		} else {
+ 			retval = sst_create_block_and_ipc_msg(&msg, false,
+ 					sst_drv_ctx, &block,
+@@ -457,7 +457,7 @@ int sst_resume_stream(int str_id)
+ 						IPC_IA_RESUME_STREAM_MRFLD,
+ 						str_info->pipe_id, 0);
+ 			memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+-			trace_sst_stream("RESUME->", str_id, str_info->pipe_id);
++//			trace_sst_stream("RESUME->", str_id, str_info->pipe_id);
+ 		} else {
+ 			retval = sst_create_block_and_ipc_msg(&msg, false,
+ 					sst_drv_ctx, &block,
+@@ -531,7 +531,7 @@ int sst_drop_stream(int str_id)
+ 			sst_fill_header_dsp(&dsp_hdr, IPC_IA_DROP_STREAM_MRFLD,
+ 					str_info->pipe_id, 0);
+ 			memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+-			trace_sst_stream("STOP  ->", str_id, str_info->pipe_id);
++//			trace_sst_stream("STOP  ->", str_id, str_info->pipe_id);
+ 			pr_info("Stop for str %d pipe %#x\n", str_id, str_info->pipe_id);
+ 
+ 			sst_drv_ctx->ops->sync_post_message(msg);
+@@ -604,7 +604,7 @@ int sst_drain_stream(int str_id, bool partial_drain)
+ 		memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+ 		memcpy(msg->mailbox_data + sizeof(dsp_hdr),
+ 				&partial_drain, sizeof(u8));
+-		trace_sst_stream("DRAIN ->", str_id, str_info->pipe_id);
++//		trace_sst_stream("DRAIN ->", str_id, str_info->pipe_id);
+ 	} else {
+ 		retval = sst_create_block_and_ipc_msg(&msg, false,
+ 				sst_drv_ctx, &block,
+@@ -675,7 +675,7 @@ int sst_free_stream(int str_id)
+ 			sst_fill_header_dsp(&dsp_hdr, IPC_IA_FREE_STREAM_MRFLD,
+ 						str_info->pipe_id,  0);
+ 			memcpy(msg->mailbox_data, &dsp_hdr, sizeof(dsp_hdr));
+-			trace_sst_stream("FREE  ->", str_id, str_info->pipe_id);
++//			trace_sst_stream("FREE  ->", str_id, str_info->pipe_id);
+ 			pr_info("Free for str %d pipe %#x\n", str_id, str_info->pipe_id);
+ 
+ 		} else {
+-- 
+1.9.1
+

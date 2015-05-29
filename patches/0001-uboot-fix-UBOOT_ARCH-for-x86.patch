@@ -1,0 +1,31 @@
+From 42e3aaa40a3e8997866e475423629bb43877825d Mon Sep 17 00:00:00 2001
+From: Frank Hunleth <fhunleth@troodon-software.com>
+Date: Tue, 14 Apr 2015 21:25:40 -0400
+Subject: [PATCH 1/2] uboot: fix UBOOT_ARCH for x86
+
+ARCH=i386 in Buildroot is ARCH=x86 for uboot.
+
+Signed-off-by: Frank Hunleth <fhunleth@troodon-software.com>
+---
+ boot/uboot/uboot.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/boot/uboot/uboot.mk b/boot/uboot/uboot.mk
+index 410d8d8..3a220de 100644
+--- a/boot/uboot/uboot.mk
++++ b/boot/uboot/uboot.mk
+@@ -65,7 +65,11 @@ UBOOT_BIN = u-boot.bin
+ UBOOT_BIN_IFT = $(UBOOT_BIN).ift
+ endif
+ 
++ifeq ($(KERNEL_ARCH),i386)
++UBOOT_ARCH = x86
++else
+ UBOOT_ARCH = $(KERNEL_ARCH)
++endif
+ 
+ UBOOT_MAKE_OPTS += \
+ 	CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
+-- 
+2.1.4
+
