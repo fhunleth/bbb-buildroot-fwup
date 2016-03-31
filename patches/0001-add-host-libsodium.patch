@@ -1,0 +1,23 @@
+From d087c639e671908b749a0add4cc56f69a9e1c986 Mon Sep 17 00:00:00 2001
+From: Rick Morgans <rick.morgans@gmail.com>
+Date: Thu, 31 Mar 2016 09:26:44 +1030
+Subject: [PATCH] add host-libsodium
+
+This enables host compilation of libsodium so that host tools using it
+can be built with buildroot.
+---
+ package/libsodium/libsodium.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/package/libsodium/libsodium.mk b/package/libsodium/libsodium.mk
+index 09bc777..fd89ced 100644
+--- a/package/libsodium/libsodium.mk
++++ b/package/libsodium/libsodium.mk
+@@ -15,3 +15,4 @@ LIBSODIUM_CONF_OPTS += --disable-pie
+ endif
+ 
+ $(eval $(autotools-package))
++$(eval $(host-autotools-package))
+-- 
+2.7.4
+
