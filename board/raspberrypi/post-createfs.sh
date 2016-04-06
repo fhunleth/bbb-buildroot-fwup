@@ -5,23 +5,21 @@ set -e
 TARGETDIR=$1
 FWUPCONF_NAME=$2
 
-PROJECT_ROOT=$TARGETDIR/../../..
-IMAGESDIR=$TARGETDIR/../images
-FWUP_CONFIG=$PROJECT_ROOT/board/raspberrypi/$FWUPCONF_NAME
-FWUP=$PROJECT_ROOT/buildroot/output/host/usr/bin/fwup
+FWUP_CONFIG=$BR2_EXTERNAL/board/raspberrypi/$FWUPCONF_NAME
+FWUP=$HOST_DIR/usr/bin/fwup
 
-FW_PATH=$PROJECT_ROOT/buildroot/output/images/raspberrypi.fw
-IMG_PATH=$PROJECT_ROOT/buildroot/output/images/raspberrypi.img
+FW_PATH=$BINARIES_DIR/raspberrypi.fw
+IMG_PATH=$BINARIES_DIR/raspberrypi.img
 
 # Process the kernel if using device tree
-if [ -e $PROJECT_ROOT/buildroot/output/host/usr/bin/mkknlimg ]; then
-    $PROJECT_ROOT/buildroot/output/host/usr/bin/mkknlimg \
-        $IMAGESDIR/zImage $IMAGESDIR/zImage.mkknlimg
+if [ -e $HOST_DIR/usr/bin/mkknlimg ]; then
+    $HOST_DIR/usr/bin/mkknlimg \
+        $BINARIES_DIR/zImage $BINARIES_DIR/zImage.mkknlimg
 fi
 
 # Build the firmware image (.fw file)
 echo "Creating firmware file..."
-PROJECT_ROOT=$PROJECT_ROOT $FWUP -c -f $FWUP_CONFIG -o $FW_PATH
+PROJECT_ROOT=$BR2_EXTERNAL $FWUP -c -f $FWUP_CONFIG -o $FW_PATH
 
 # Build a raw image that can be directly written to
 # an SDCard (remove an exiting file so that the file that
