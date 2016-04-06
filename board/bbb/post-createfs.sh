@@ -5,16 +5,15 @@ set -e
 TARGETDIR=$1
 FWUPCONF_NAME=$2
 
-PROJECT_ROOT=$TARGETDIR/../../..
-FWUP_CONFIG=$PROJECT_ROOT/board/bbb/$FWUPCONF_NAME
-FWUP=$PROJECT_ROOT/buildroot/output/host/usr/bin/fwup
+FWUP_CONFIG=$BR2_EXTERNAL/board/bbb/$FWUPCONF_NAME
+FWUP=$HOST_DIR/usr/bin/fwup
 
-FW_PATH=$PROJECT_ROOT/buildroot/output/images/bbb.fw
-IMG_PATH=$PROJECT_ROOT/buildroot/output/images/bbb.img
+FW_PATH=$BINARIES_DIR/bbb.fw
+IMG_PATH=$BINARIES_DIR/bbb.img
 
 # Build the firmware image (.fw file)
 echo "Creating firmware file..."
-PROJECT_ROOT=$PROJECT_ROOT $FWUP -c -f $FWUP_CONFIG -o $FW_PATH
+PROJECT_ROOT=$BR2_EXTERNAL $FWUP -c -f $FWUP_CONFIG -o $FW_PATH
 
 # Build a raw image that can be directly written to
 # an SDCard (remove an exiting file so that the file that
