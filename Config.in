@@ -1,3 +1,2 @@
 source "$BR2_EXTERNAL/package/fwup/Config.in"
 source "$BR2_EXTERNAL/package/fwup/Config.in.host"
-source "$BR2_EXTERNAL/package/libsodium/Config.in"
