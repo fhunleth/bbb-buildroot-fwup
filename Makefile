@@ -62,6 +62,9 @@ br-make: buildroot/.config
 burn-complete:
 	sudo buildroot/output/host/usr/bin/fwup -a -i $(firstword $(wildcard buildroot/output/images/*.fw)) -t complete
 
+# Alias 'make burn` to 'make burn-complete'
+burn: burn-complete
+
 # Upgrade the image on the SDCard (app data won't be removed)
 # This is usually the fastest way to update an SDCard that's already
 # been programmed. It won't update bootloaders, so if something is
